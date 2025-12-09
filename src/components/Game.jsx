@@ -130,32 +130,28 @@ function Game({ user, onLogout, gameId }) {
       setIsBotThinking(true)
       
       const botMove = async () => {
-        // Add delay for better UX
-        await new Promise(resolve => setTimeout(resolve, 800))
-        
-        // Double-check game state hasn't changed
-        if (mainWinner) {
-          setIsBotThinking(false)
-          return
-        }
-        
         try {
+          // Add delay for better UX
+          await new Promise(resolve => setTimeout(resolve, 800))
+          
+          // Double-check game state hasn't changed
+          if (mainWinner) {
+            setIsBotThinking(false)
+            return
+          }
+          
           const bestMove = findBestMove(boards, miniBoardWinners, activeBoard, 'O', 'medium')
           
-          if (bestMove) {
-            // Verify the square is still empty before making the move
-            if (!boards[bestMove.boardIndex][bestMove.squareIndex]) {
-              handlePlay(bestMove.boardIndex, bestMove.squareIndex)
-            } else {
-              console.warn('Bot selected occupied square')
-              setIsBotThinking(false)
-            }
+          if (bestMove && !boards[bestMove.boardIndex][bestMove.squareIndex]) {
+            // Make the move
+            await handlePlay(bestMove.boardIndex, bestMove.squareIndex)
           } else {
             console.warn('Bot could not find a valid move')
-            setIsBotThinking(false)
           }
         } catch (error) {
           console.error('Bot move error:', error)
+        } finally {
+          // Always reset thinking state after move attempt
           setIsBotThinking(false)
         }
       }
@@ -221,12 +217,6 @@ function Game({ user, onLogout, gameId }) {
     }
     
     setBoards(nextBoards)
-    
-    // Reset bot thinking state when player makes a move
-    if (!isMultiplayer && playWithBot && isBotThinking) {
-      setIsBotThinking(false)
-    }
-    
     setXIsNext(!xIsNext)
     
     // Multiplayer: send move to server
