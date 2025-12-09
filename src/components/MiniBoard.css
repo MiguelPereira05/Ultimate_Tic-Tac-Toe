@@ -91,39 +91,49 @@
   gap: 3px;
 }
 
+@media (max-width: 480px) {
+  .mini-board-grid {
+    gap: 4px;
+  }
+
+  .mini-board-row {
+    gap: 4px;
+  }
+}
+
 @media (max-width: 768px) {
   .mini-board {
-    width: 90px;
-    height: 90px;
-    padding: 5px;
+    width: 105px;
+    height: 105px;
+    padding: 6px;
   }
 
   .mini-board-winner {
-    font-size: 3.2rem;
+    font-size: 3.8rem;
   }
 }
 
 @media (max-width: 480px) {
   .mini-board {
-    width: 75px;
-    height: 75px;
-    padding: 4px;
+    width: 95px;
+    height: 95px;
+    padding: 5px;
     border-width: 2px;
   }
 
   .mini-board-winner {
-    font-size: 2.5rem;
+    font-size: 3.2rem;
   }
 
   .mini-board.active {
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.6);
   }
 }
 
 @media (max-width: 380px) {
   .mini-board {
-    width: 65px;
-    height: 65px;
+    width: 82px;
+    height: 82px;
   }
 
   .mini-board-winner {

@@ -36,25 +36,25 @@
 
 @media (max-width: 768px) {
   .mini-square {
-    width: 26px;
-    height: 26px;
-    font-size: 0.75rem;
+    width: 31px;
+    height: 31px;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
   .mini-square {
-    width: 21px;
-    height: 21px;
-    font-size: 0.65rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
     border-width: 1px;
   }
 }
 
 @media (max-width: 380px) {
   .mini-square {
-    width: 18px;
-    height: 18px;
-    font-size: 0.6rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
   }
 }
