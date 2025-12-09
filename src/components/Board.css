@@ -1,7 +1,7 @@
 .main-board {
   display: inline-block;
   background: rgba(30, 41, 59, 0.6);
-  padding: 10px;
+  padding: 16px;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
   border: 2px solid rgba(59, 130, 246, 0.3);
@@ -10,8 +10,8 @@
 
 .board-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .board-row:last-child {
@@ -20,23 +20,23 @@
 
 @media (max-width: 480px) {
   .main-board {
-    padding: 6px;
-    border-radius: 6px;
+    padding: 10px;
+    border-radius: 12px;
   }
 
   .board-row {
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 10px;
+    margin-bottom: 10px;
   }
 }
 
 @media (max-width: 380px) {
   .main-board {
-    padding: 4px;
+    padding: 8px;
   }
 
   .board-row {
-    gap: 4px;
-    margin-bottom: 4px;
+    gap: 8px;
+    margin-bottom: 8px;
   }
 }

@@ -1,13 +1,13 @@
 .mini-board {
-  width: 80px;
-  height: 80px;
+  width: 110px;
+  height: 110px;
   background: rgba(30, 41, 59, 0.8);
   border: 2px solid var(--accent-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 6px;
   transition: all 0.3s ease;
   position: relative;
   touch-action: manipulation;
@@ -71,7 +71,7 @@
 }
 
 .mini-board-winner {
-  font-size: 3rem;
+  font-size: 4rem;
   font-weight: bold;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   -webkit-background-clip: text;
@@ -83,36 +83,36 @@
 .mini-board-grid {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .mini-board-row {
   display: flex;
-  gap: 2px;
+  gap: 3px;
 }
 
 @media (max-width: 768px) {
   .mini-board {
-    width: 70px;
-    height: 70px;
-    padding: 3px;
+    width: 90px;
+    height: 90px;
+    padding: 5px;
   }
 
   .mini-board-winner {
-    font-size: 2.5rem;
+    font-size: 3.2rem;
   }
 }
 
 @media (max-width: 480px) {
   .mini-board {
-    width: 60px;
-    height: 60px;
-    padding: 2px;
-    border-width: 1px;
+    width: 75px;
+    height: 75px;
+    padding: 4px;
+    border-width: 2px;
   }
 
   .mini-board-winner {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .mini-board.active {
@@ -122,8 +122,8 @@
 
 @media (max-width: 380px) {
   .mini-board {
-    width: 50px;
-    height: 50px;
+    width: 65px;
+    height: 65px;
   }
 
   .mini-board-winner {

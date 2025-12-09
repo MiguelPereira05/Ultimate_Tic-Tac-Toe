@@ -1,10 +1,10 @@
 .mini-square {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   background: rgba(51, 65, 85, 0.8);
   border: 1px solid rgba(71, 85, 105, 0.8);
   border-radius: 4px;
-  font-size: 0.6rem;
+  font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -36,25 +36,25 @@
 
 @media (max-width: 768px) {
   .mini-square {
-    width: 19px;
-    height: 19px;
-    font-size: 0.55rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
   .mini-square {
-    width: 16px;
-    height: 16px;
-    font-size: 0.5rem;
-    border-width: 0.5px;
+    width: 21px;
+    height: 21px;
+    font-size: 0.65rem;
+    border-width: 1px;
   }
 }
 
 @media (max-width: 380px) {
   .mini-square {
-    width: 13px;
-    height: 13px;
-    font-size: 0.45rem;
+    width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
   }
 }
