@@ -124,6 +124,7 @@ function Game({ user, onLogout, gameId }) {
 
   // Bot AI for solo games
   useEffect(() => {
+    // Only trigger bot if it's bot's turn, game is not over, and bot is not already thinking
     if (!isMultiplayer && playWithBot && !xIsNext && !mainWinner && !isBotThinking) {
       // Bot's turn (Bot is 'O')
       setIsBotThinking(true)
@@ -132,18 +133,29 @@ function Game({ user, onLogout, gameId }) {
         // Add delay for better UX
         await new Promise(resolve => setTimeout(resolve, 800))
         
+        // Double-check game state hasn't changed
+        if (mainWinner) {
+          setIsBotThinking(false)
+          return
+        }
+        
         try {
           const bestMove = findBestMove(boards, miniBoardWinners, activeBoard, 'O', 'medium')
           
           if (bestMove) {
-            handlePlay(bestMove.boardIndex, bestMove.squareIndex)
+            // Verify the square is still empty before making the move
+            if (!boards[bestMove.boardIndex][bestMove.squareIndex]) {
+              handlePlay(bestMove.boardIndex, bestMove.squareIndex)
+            } else {
+              console.warn('Bot selected occupied square')
+              setIsBotThinking(false)
+            }
           } else {
             console.warn('Bot could not find a valid move')
+            setIsBotThinking(false)
           }
         } catch (error) {
           console.error('Bot move error:', error)
-        } finally {
-          // Always reset thinking state
           setIsBotThinking(false)
         }
       }
@@ -154,6 +166,16 @@ function Game({ user, onLogout, gameId }) {
 
   async function handlePlay(boardIndex, squareIndex) {
     if (mainWinner) return
+    
+    // Prevent moves while bot is thinking
+    if (!isMultiplayer && playWithBot && isBotThinking) {
+      return
+    }
+    
+    // Solo game: prevent playing on bot's turn
+    if (!isMultiplayer && playWithBot && !xIsNext) {
+      return
+    }
     
     // Multiplayer: check if it's my turn
     if (isMultiplayer) {
@@ -199,6 +221,12 @@ function Game({ user, onLogout, gameId }) {
     }
     
     setBoards(nextBoards)
+    
+    // Reset bot thinking state when player makes a move
+    if (!isMultiplayer && playWithBot && isBotThinking) {
+      setIsBotThinking(false)
+    }
+    
     setXIsNext(!xIsNext)
     
     // Multiplayer: send move to server
