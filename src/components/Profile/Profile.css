@@ -2,6 +2,9 @@
   min-height: 100vh;
   padding: 2rem;
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .profile-loading {
@@ -24,6 +27,9 @@
   margin-bottom: 2rem;
   box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
   backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .profile-user-info {
@@ -63,6 +69,8 @@
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .profile-section {
@@ -71,6 +79,10 @@
   border-radius: 16px;
   border: 1px solid var(--border-color);
   backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .profile-section h2 {
@@ -383,11 +395,17 @@
   }
 
   .profile-section {
-    padding: 1.5rem;
+    padding: 0.875rem;
   }
 
   .profile-section h2 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    word-wrap: break-word;
+  }
+
+  .action-btn {
+    font-size: 1rem;
+    padding: 1rem 1.5rem;
   }
 
   .action-buttons {
@@ -396,6 +414,11 @@
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 0.875rem;
   }
 
   .section-header {
@@ -411,6 +434,14 @@
   .request-item,
   .friend-item {
     padding: 0.75rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .request-username,
+  .friend-username {
+    font-size: 1rem;
+    word-break: break-word;
   }
 
   .request-avatar,
@@ -422,8 +453,13 @@
 }
 
 @media (max-width: 480px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+
   .profile-header {
     padding: 1rem;
+    border-radius: 12px;
   }
 
   .profile-avatar {
@@ -437,12 +473,12 @@
   }
 
   .profile-section {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
   .action-btn {
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
   }
 
   .btn-icon {
