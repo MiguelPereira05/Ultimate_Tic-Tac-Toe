@@ -1,0 +1,236 @@
+.rules-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.rules-content {
+  max-width: 900px;
+  width: 100%;
+  padding: 3rem;
+  background: rgba(26, 26, 26, 0.9);
+  border-radius: 20px;
+  border: 2px solid #646cff;
+  box-shadow: 0 8px 32px rgba(100, 108, 255, 0.3);
+  margin: 2rem 0;
+}
+
+.rules-title {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #646cff 0%, #4caf50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.rules-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.rule-section {
+  background: rgba(42, 42, 42, 0.6);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #3a3a3a;
+  transition: all 0.3s ease;
+}
+
+.rule-section:hover {
+  border-color: #646cff;
+  transform: translateX(5px);
+}
+
+.rule-section.special {
+  border: 2px solid #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.rule-section h2 {
+  color: #646cff;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rule-section.special h2 {
+  color: #4caf50;
+}
+
+.rule-section p {
+  color: #d0d0d0;
+  line-height: 1.8;
+  margin-bottom: 0.5rem;
+}
+
+.rule-section ol,
+.rule-section ul {
+  color: #d0d0d0;
+  line-height: 1.8;
+  padding-left: 1.5rem;
+}
+
+.rule-section li {
+  margin-bottom: 0.5rem;
+}
+
+.highlight {
+  background: rgba(100, 108, 255, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #646cff;
+}
+
+.example {
+  background: rgba(42, 42, 42, 0.8);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid #4caf50;
+}
+
+.example p {
+  margin: 0;
+}
+
+.back-button {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #646cff 0%, #747bff 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(100, 108, 255, 0.4);
+}
+
+.back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(100, 108, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+  .rules-container {
+    padding: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .rules-content {
+    padding: 2rem 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .rules-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .rules-sections {
+    gap: 1.5rem;
+  }
+
+  .rule-section {
+    padding: 1.25rem;
+  }
+
+  .rule-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .back-button {
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rules-container {
+    padding: 1rem;
+  }
+
+  .rules-content {
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
+    margin: 0.5rem 0;
+  }
+
+  .rules-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .rules-sections {
+    gap: 1.25rem;
+  }
+
+  .rule-section {
+    padding: 1rem;
+  }
+
+  .rule-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .rule-section p,
+  .rule-section li {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .rule-section ol,
+  .rule-section ul {
+    padding-left: 1.25rem;
+  }
+
+  .highlight {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .example {
+    padding: 0.75rem;
+    margin: 0.75rem 0;
+  }
+
+  .back-button {
+    font-size: 0.95rem;
+    padding: 0.75rem 1.25rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .rules-title {
+    font-size: 1.35rem;
+  }
+
+  .rule-section h2 {
+    font-size: 1rem;
+  }
+
+  .rule-section p,
+  .rule-section li {
+    font-size: 0.85rem;
+  }
+
+  .back-button {
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
+  }
+}

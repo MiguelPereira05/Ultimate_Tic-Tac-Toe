@@ -1,0 +1,132 @@
+.mini-board {
+  width: 80px;
+  height: 80px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px solid var(--accent-primary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+  touch-action: manipulation;
+}
+
+.mini-board.active {
+  border-color: var(--accent-success);
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.mini-board.active:hover {
+  border-color: var(--accent-success);
+  transform: scale(1.03);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.8);
+}
+
+.mini-board.inactive {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mini-board.inactive:hover {
+  transform: none;
+  border-color: var(--accent-primary);
+}
+
+.mini-board.complete {
+  opacity: 0.75;
+}
+
+.mini-board.won {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+}
+
+.mini-board.winning-board {
+  border-color: var(--accent-success);
+  box-shadow: 0 0 20px var(--accent-success);
+  animation: board-pulse 1.5s ease-in-out infinite;
+}
+
+.mini-board.game-over {
+  opacity: 0.3;
+  filter: grayscale(100%);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.mini-board.game-over.winning-board {
+  opacity: 0.6;
+  filter: grayscale(50%);
+}
+
+@keyframes board-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.mini-board-winner {
+  font-size: 3rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.mini-board-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mini-board-row {
+  display: flex;
+  gap: 2px;
+}
+
+@media (max-width: 768px) {
+  .mini-board {
+    width: 70px;
+    height: 70px;
+    padding: 3px;
+  }
+
+  .mini-board-winner {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mini-board {
+    width: 60px;
+    height: 60px;
+    padding: 2px;
+    border-width: 1px;
+  }
+
+  .mini-board-winner {
+    font-size: 2rem;
+  }
+
+  .mini-board.active {
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+  }
+}
+
+@media (max-width: 380px) {
+  .mini-board {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mini-board-winner {
+    font-size: 1.5rem;
+  }
+}
