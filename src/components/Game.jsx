@@ -133,8 +133,8 @@ function Game({ user, onLogout, gameId }) {
     setIsBotThinking(true)
     
     const makeMove = async () => {
-      // Delay for UX
-      await new Promise(resolve => setTimeout(resolve, 600))
+      // Delay for UX and to ensure state has settled
+      await new Promise(resolve => setTimeout(resolve, 800))
       
       if (cancelled) return
       
@@ -177,10 +177,17 @@ function Game({ user, onLogout, gameId }) {
         const nextBoardFull = nextBoards[nextActiveBoard].every(square => square !== null)
         
         if (!cancelled) {
+          // Update all states together to prevent race conditions
           setBoards(nextBoards)
           setActiveBoard(nextBoardWon || nextBoardFull ? null : nextActiveBoard)
-          setXIsNext(true)
-          setIsBotThinking(false)
+          
+          // Small delay before allowing player input to prevent fast-click issues
+          await new Promise(resolve => setTimeout(resolve, 100))
+          
+          if (!cancelled) {
+            setXIsNext(true)
+            setIsBotThinking(false)
+          }
         }
       } catch (error) {
         console.error('Bot error:', error)
@@ -200,8 +207,8 @@ function Game({ user, onLogout, gameId }) {
   async function handlePlay(boardIndex, squareIndex) {
     if (mainWinner) return
     
-    // Prevent moves while bot is thinking
-    if (!isMultiplayer && playWithBot && isBotThinking) {
+    // Prevent moves while bot is thinking OR if it's not player's turn
+    if (!isMultiplayer && playWithBot && (isBotThinking || !xIsNext)) {
       return
     }
     
