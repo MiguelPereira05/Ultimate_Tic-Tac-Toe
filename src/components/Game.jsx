@@ -122,71 +122,80 @@ function Game({ user, onLogout, gameId }) {
   const mainWinner = mainResult ? mainResult.winner : null
   const winningBoards = mainResult ? mainResult.line : []
 
-  // Bot AI for solo games - simplified and more reliable
+  // Bot AI for solo games
   useEffect(() => {
-    let isMounted = true
+    // Only trigger when it becomes bot's turn (xIsNext changes to false)
+    if (isMultiplayer || !playWithBot || xIsNext || mainWinner || isBotThinking) {
+      return
+    }
     
-    const executeBotMove = async () => {
-      // Safety checks
-      if (isMultiplayer || !playWithBot || xIsNext || mainWinner || isBotThinking) {
-        return
-      }
-      
-      setIsBotThinking(true)
-      
+    let cancelled = false
+    setIsBotThinking(true)
+    
+    const makeMove = async () => {
       // Delay for UX
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 600))
       
-      if (!isMounted) {
-        setIsBotThinking(false)
-        return
-      }
+      if (cancelled) return
       
       try {
         const bestMove = findBestMove(boards, miniBoardWinners, activeBoard, 'O', 'medium')
         
-        if (bestMove) {
-          const { boardIndex, squareIndex } = bestMove
-          
-          // Make move directly without calling handlePlay to avoid conflicts
-          const nextBoards = boards.map((board, i) => 
-            i === boardIndex ? [...board] : [...board]
-          )
-          
-          nextBoards[boardIndex][squareIndex] = 'O'
-          
-          // Check for draw and reset
-          const result = calculateWinner(nextBoards[boardIndex])
-          const isDraw = !result && nextBoards[boardIndex].every(square => square !== null)
-          if (isDraw) {
-            nextBoards[boardIndex] = Array(9).fill(null)
-          }
-          
-          // Determine next active board
-          const nextActiveBoard = squareIndex
-          const nextBoardResult = calculateWinner(nextBoards[nextActiveBoard])
-          const nextBoardWon = nextBoardResult !== null
-          const nextBoardFull = nextBoards[nextActiveBoard].every(square => square !== null)
-          
+        if (!bestMove) {
+          console.warn('Bot: No valid move found')
+          setIsBotThinking(false)
+          return
+        }
+        
+        const { boardIndex, squareIndex } = bestMove
+        
+        // Verify square is empty
+        if (boards[boardIndex][squareIndex]) {
+          console.warn('Bot: Square already occupied')
+          setIsBotThinking(false)
+          return
+        }
+        
+        // Create new boards state
+        const nextBoards = boards.map((board, i) => 
+          i === boardIndex ? [...board] : [...board]
+        )
+        
+        nextBoards[boardIndex][squareIndex] = 'O'
+        
+        // Check for draw and reset
+        const result = calculateWinner(nextBoards[boardIndex])
+        const isDraw = !result && nextBoards[boardIndex].every(square => square !== null)
+        if (isDraw) {
+          nextBoards[boardIndex] = Array(9).fill(null)
+        }
+        
+        // Determine next active board
+        const nextActiveBoard = squareIndex
+        const nextBoardResult = calculateWinner(nextBoards[nextActiveBoard])
+        const nextBoardWon = nextBoardResult !== null
+        const nextBoardFull = nextBoards[nextActiveBoard].every(square => square !== null)
+        
+        if (!cancelled) {
           setBoards(nextBoards)
           setActiveBoard(nextBoardWon || nextBoardFull ? null : nextActiveBoard)
-          setXIsNext(true) // Player's turn
+          setXIsNext(true)
+          setIsBotThinking(false)
         }
       } catch (error) {
         console.error('Bot error:', error)
-      } finally {
-        if (isMounted) {
+        if (!cancelled) {
           setIsBotThinking(false)
         }
       }
     }
     
-    executeBotMove()
+    makeMove()
     
     return () => {
-      isMounted = false
+      cancelled = true
     }
-  }, [boards, xIsNext, mainWinner, isMultiplayer])
+  }, [xIsNext, mainWinner, isMultiplayer])
 
   async function handlePlay(boardIndex, squareIndex) {
     if (mainWinner) return
