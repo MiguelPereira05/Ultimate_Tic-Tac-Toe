@@ -122,43 +122,71 @@ function Game({ user, onLogout, gameId }) {
   const mainWinner = mainResult ? mainResult.winner : null
   const winningBoards = mainResult ? mainResult.line : []
 
-  // Bot AI for solo games
+  // Bot AI for solo games - simplified and more reliable
   useEffect(() => {
-    // Only trigger bot if it's bot's turn, game is not over, and bot is not already thinking
-    if (!isMultiplayer && playWithBot && !xIsNext && !mainWinner && !isBotThinking) {
-      // Bot's turn (Bot is 'O')
+    let isMounted = true
+    
+    const executeBotMove = async () => {
+      // Safety checks
+      if (isMultiplayer || !playWithBot || xIsNext || mainWinner || isBotThinking) {
+        return
+      }
+      
       setIsBotThinking(true)
       
-      const botMove = async () => {
-        try {
-          // Add delay for better UX
-          await new Promise(resolve => setTimeout(resolve, 800))
+      // Delay for UX
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      if (!isMounted) {
+        setIsBotThinking(false)
+        return
+      }
+      
+      try {
+        const bestMove = findBestMove(boards, miniBoardWinners, activeBoard, 'O', 'medium')
+        
+        if (bestMove) {
+          const { boardIndex, squareIndex } = bestMove
           
-          // Double-check game state hasn't changed
-          if (mainWinner) {
-            setIsBotThinking(false)
-            return
+          // Make move directly without calling handlePlay to avoid conflicts
+          const nextBoards = boards.map((board, i) => 
+            i === boardIndex ? [...board] : [...board]
+          )
+          
+          nextBoards[boardIndex][squareIndex] = 'O'
+          
+          // Check for draw and reset
+          const result = calculateWinner(nextBoards[boardIndex])
+          const isDraw = !result && nextBoards[boardIndex].every(square => square !== null)
+          if (isDraw) {
+            nextBoards[boardIndex] = Array(9).fill(null)
           }
           
-          const bestMove = findBestMove(boards, miniBoardWinners, activeBoard, 'O', 'medium')
+          // Determine next active board
+          const nextActiveBoard = squareIndex
+          const nextBoardResult = calculateWinner(nextBoards[nextActiveBoard])
+          const nextBoardWon = nextBoardResult !== null
+          const nextBoardFull = nextBoards[nextActiveBoard].every(square => square !== null)
           
-          if (bestMove && !boards[bestMove.boardIndex][bestMove.squareIndex]) {
-            // Make the move
-            await handlePlay(bestMove.boardIndex, bestMove.squareIndex)
-          } else {
-            console.warn('Bot could not find a valid move')
-          }
-        } catch (error) {
-          console.error('Bot move error:', error)
-        } finally {
-          // Always reset thinking state after move attempt
+          setBoards(nextBoards)
+          setActiveBoard(nextBoardWon || nextBoardFull ? null : nextActiveBoard)
+          setXIsNext(true) // Player's turn
+        }
+      } catch (error) {
+        console.error('Bot error:', error)
+      } finally {
+        if (isMounted) {
           setIsBotThinking(false)
         }
       }
-      
-      botMove()
     }
-  }, [xIsNext, mainWinner])
+    
+    executeBotMove()
+    
+    return () => {
+      isMounted = false
+    }
+  }, [boards, xIsNext, mainWinner, isMultiplayer])
 
   async function handlePlay(boardIndex, squareIndex) {
     if (mainWinner) return
