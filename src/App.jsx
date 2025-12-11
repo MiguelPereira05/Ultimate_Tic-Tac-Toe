@@ -13,6 +13,24 @@ function App() {
   const [currentView, setCurrentView] = useState('landing')
   const [user, setUser] = useState(null)
   const [currentGameId, setCurrentGameId] = useState(null)
+  const [confirmationMessage, setConfirmationMessage] = useState('')
+
+  // Handle email confirmation on page load
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const type = hashParams.get('type')
+    
+    if (type === 'signup') {
+      setConfirmationMessage('Email confirmed! You can now log in.')
+      // Clear the hash from URL
+      window.history.replaceState(null, '', window.location.pathname)
+      // Redirect to login after a moment
+      setTimeout(() => {
+        setCurrentView('login')
+        setConfirmationMessage('')
+      }, 2000)
+    }
+  }, [])
 
   // Check if user is authenticated
   useEffect(() => {
@@ -87,6 +105,24 @@ function App() {
 
   return (
     <>
+      {confirmationMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'var(--success, #10b981)',
+          color: 'white',
+          padding: '1rem 2rem',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          zIndex: 9999,
+          fontWeight: '500'
+        }}>
+          {confirmationMessage}
+        </div>
+      )}
+      
       {currentView === 'landing' && (
         <LandingPage 
           onLogin={handleLogin}
