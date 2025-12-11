@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
           data: {
             username: username,
           },
-          emailRedirectTo: window.location.origin
+          emailRedirectTo: "https://ultimate-tic-tac-toe-livx.onrender.com"
         }
       })
       

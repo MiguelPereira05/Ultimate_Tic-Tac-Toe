@@ -58,6 +58,108 @@
   margin-bottom: 0.25rem;
 }
 
+.username-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.username-display h1 {
+  margin: 0;
+}
+
+.edit-username-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  opacity: 0.6;
+  transition: all 0.2s;
+  border-radius: 4px;
+}
+
+.edit-username-btn:hover {
+  opacity: 1;
+  background: rgba(59, 130, 246, 0.1);
+  transform: scale(1.1);
+}
+
+.username-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.username-input {
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid var(--accent-primary);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.3s;
+  width: 100%;
+  max-width: 300px;
+}
+
+.username-input:focus {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.username-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-username-btn,
+.cancel-username-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.save-username-btn {
+  background: var(--success);
+  color: white;
+}
+
+.save-username-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.cancel-username-btn {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+}
+
+.cancel-username-btn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.9);
+  transform: translateY(-2px);
+}
+
+.save-username-btn:disabled,
+.cancel-username-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.username-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin: 0;
+  font-weight: 500;
+}
+
 .profile-email {
   color: var(--text-secondary);
   font-size: 1rem;

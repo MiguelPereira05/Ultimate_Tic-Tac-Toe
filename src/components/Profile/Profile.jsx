@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { getUserProfile, ensureUserProfile } from '../../lib/profileService'
+import { getUserProfile, ensureUserProfile, updateUserProfile } from '../../lib/profileService'
 import { getFriends, getPendingRequests, acceptFriendRequest, rejectFriendRequest, removeFriend } from '../../lib/friendService'
 import { getPendingInvitations, getActiveGames, acceptGameInvitation, declineGameInvitation, createGameChallenge, getUserStats } from '../../lib/gameService'
 import AddFriendModal from '../AddFriend/AddFriendModal'
@@ -17,6 +17,9 @@ function Profile({ user, onStartGame, onLogout, onJoinGame }) {
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [actionLoading, setActionLoading] = useState(null)
   const [stats, setStats] = useState({ gamesPlayed: 0, wins: 0, losses: 0, winRate: 0 })
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [newUsername, setNewUsername] = useState('')
+  const [usernameError, setUsernameError] = useState('')
 
   useEffect(() => {
     loadProfile()
@@ -132,6 +135,55 @@ function Profile({ user, onStartGame, onLogout, onJoinGame }) {
     loadPendingRequests()
   }
 
+  const handleEditUsername = () => {
+    setNewUsername(profile?.username || user.username)
+    setIsEditingUsername(true)
+    setUsernameError('')
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditingUsername(false)
+    setNewUsername('')
+    setUsernameError('')
+  }
+
+  const handleSaveUsername = async () => {
+    if (!newUsername.trim()) {
+      setUsernameError('Username cannot be empty')
+      return
+    }
+
+    if (newUsername.length < 3) {
+      setUsernameError('Username must be at least 3 characters')
+      return
+    }
+
+    if (newUsername.length > 20) {
+      setUsernameError('Username must be less than 20 characters')
+      return
+    }
+
+    setActionLoading('save-username')
+    const result = await updateUserProfile(authUser.id, { username: newUsername.trim() })
+    
+    if (result.error) {
+      if (result.error.includes('duplicate') || result.error.includes('unique')) {
+        setUsernameError('This username is already taken')
+      } else {
+        setUsernameError('Failed to update username')
+      }
+      setActionLoading(null)
+      return
+    }
+
+    // Update local state
+    setProfile({ ...profile, username: newUsername.trim() })
+    setIsEditingUsername(false)
+    setNewUsername('')
+    setUsernameError('')
+    setActionLoading(null)
+  }
+
   if (loading) {
     return (
       <div className="profile-container">
@@ -145,10 +197,45 @@ function Profile({ user, onStartGame, onLogout, onJoinGame }) {
       <div className="profile-header">
         <div className="profile-user-info">
           <div className="profile-avatar">
-            {user.username.charAt(0).toUpperCase()}
+            {(profile?.username || user.username).charAt(0).toUpperCase()}
           </div>
           <div className="profile-details">
-            <h1>{user.username}</h1>
+            {isEditingUsername ? (
+              <div className="username-edit">
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="Enter new username"
+                  className="username-input"
+                  maxLength="20"
+                />
+                <div className="username-edit-actions">
+                  <button 
+                    className="save-username-btn"
+                    onClick={handleSaveUsername}
+                    disabled={actionLoading === 'save-username'}
+                  >
+                    {actionLoading === 'save-username' ? '...' : '✓'}
+                  </button>
+                  <button 
+                    className="cancel-username-btn"
+                    onClick={handleCancelEdit}
+                    disabled={actionLoading === 'save-username'}
+                  >
+                    ✕
+                  </button>
+                </div>
+                {usernameError && <p className="username-error">{usernameError}</p>}
+              </div>
+            ) : (
+              <div className="username-display">
+                <h1>{profile?.username || user.username}</h1>
+                <button className="edit-username-btn" onClick={handleEditUsername} title="Edit username">
+                  ✏️
+                </button>
+              </div>
+            )}
             <p className="profile-email">{authUser?.email}</p>
             {user.isGuest && <span className="guest-badge">Guest</span>}
           </div>
