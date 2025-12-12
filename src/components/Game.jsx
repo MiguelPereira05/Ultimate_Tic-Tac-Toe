@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import Board from './Board'
 import { calculateWinner } from '../utils/gameLogic'
@@ -24,6 +24,7 @@ function Game({ user, onLogout, gameId }) {
   const [playWithBot, setPlayWithBot] = useState(true) // Enable bot for solo games
   const [rematchStatus, setRematchStatus] = useState(null) // null, 'requested', 'waiting'
   const [showDrawOptions, setShowDrawOptions] = useState(false)
+  const botMoveInProgress = useRef(false)
 
   // Load multiplayer game if gameId is provided
   useEffect(() => {
@@ -143,25 +144,35 @@ function Game({ user, onLogout, gameId }) {
   // Bot AI for solo games
   useEffect(() => {
     // Only trigger when it becomes bot's turn (xIsNext changes to false)
-    if (isMultiplayer || !playWithBot || xIsNext || mainWinner || isBotThinking) {
+    if (isMultiplayer || !playWithBot || xIsNext || mainWinner || isBotThinking || botMoveInProgress.current) {
       return
     }
     
-    let cancelled = false
-    setIsBotThinking(true)
+    botMoveInProgress.current = true
+    let timeoutId
     
     const makeMove = async () => {
-      // Delay for UX and to ensure state has settled
-      await new Promise(resolve => setTimeout(resolve, 800))
+      // Set thinking state
+      setIsBotThinking(true)
       
-      if (cancelled) return
+      // Delay for UX
+      await new Promise(resolve => {
+        timeoutId = setTimeout(resolve, 600)
+      })
       
       try {
-        const bestMove = findBestMove(boards, miniBoardWinners, activeBoard, 'O', 'medium')
+        // Recalculate miniBoardWinners with current boards state
+        const currentMiniBoardWinners = boards.map(board => {
+          const result = calculateWinner(board)
+          return result ? result.winner : null
+        })
+        
+        const bestMove = findBestMove(boards, currentMiniBoardWinners, activeBoard, 'O', 'medium')
         
         if (!bestMove) {
           console.warn('Bot: No valid move found')
           setIsBotThinking(false)
+          botMoveInProgress.current = false
           return
         }
         
@@ -171,6 +182,7 @@ function Game({ user, onLogout, gameId }) {
         if (boards[boardIndex][squareIndex]) {
           console.warn('Bot: Square already occupied')
           setIsBotThinking(false)
+          botMoveInProgress.current = false
           return
         }
         
@@ -194,33 +206,26 @@ function Game({ user, onLogout, gameId }) {
         const nextBoardWon = nextBoardResult !== null
         const nextBoardFull = nextBoards[nextActiveBoard].every(square => square !== null)
         
-        if (!cancelled) {
-          // Update all states together to prevent race conditions
-          setBoards(nextBoards)
-          setActiveBoard(nextBoardWon || nextBoardFull ? null : nextActiveBoard)
-          
-          // Small delay before allowing player input to prevent fast-click issues
-          await new Promise(resolve => setTimeout(resolve, 100))
-          
-          if (!cancelled) {
-            setXIsNext(true)
-            setIsBotThinking(false)
-          }
-        }
+        // Update all states in batch
+        setBoards(nextBoards)
+        setActiveBoard(nextBoardWon || nextBoardFull ? null : nextActiveBoard)
+        setXIsNext(true)
+        setIsBotThinking(false)
+        botMoveInProgress.current = false
       } catch (error) {
         console.error('Bot error:', error)
-        if (!cancelled) {
-          setIsBotThinking(false)
-        }
+        setIsBotThinking(false)
+        botMoveInProgress.current = false
       }
     }
     
     makeMove()
     
     return () => {
-      cancelled = true
+      if (timeoutId) clearTimeout(timeoutId)
+      botMoveInProgress.current = false
     }
-  }, [xIsNext, mainWinner, isMultiplayer])
+  }, [xIsNext, mainWinner, isMultiplayer, playWithBot])
 
   async function handlePlay(boardIndex, squareIndex) {
     if (mainWinner) return
