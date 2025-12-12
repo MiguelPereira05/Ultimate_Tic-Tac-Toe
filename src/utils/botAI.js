@@ -5,6 +5,12 @@ import { calculateWinner } from './gameLogic'
  * Returns a score for the board
  */
 function evaluateMiniBoard(board, symbol) {
+  // Safety check: ensure board is valid
+  if (!board || !Array.isArray(board) || board.length !== 9) {
+    console.warn('evaluateMiniBoard: Invalid board', board)
+    return 0
+  }
+  
   const result = calculateWinner(board)
   if (result) {
     return result.winner === symbol ? 100 : -100
@@ -39,6 +45,16 @@ function evaluateMiniBoard(board, symbol) {
  * Evaluate the entire game state
  */
 function evaluateGameState(boards, miniBoardWinners, botSymbol) {
+  // Safety check: ensure valid inputs
+  if (!boards || !Array.isArray(boards) || boards.length !== 9) {
+    console.warn('evaluateGameState: Invalid boards', boards)
+    return 0
+  }
+  if (!miniBoardWinners || !Array.isArray(miniBoardWinners) || miniBoardWinners.length !== 9) {
+    console.warn('evaluateGameState: Invalid miniBoardWinners', miniBoardWinners)
+    return 0
+  }
+  
   let score = 0
   const playerSymbol = botSymbol === 'X' ? 'O' : 'X'
   
@@ -55,7 +71,7 @@ function evaluateGameState(boards, miniBoardWinners, botSymbol) {
   
   // Evaluate each mini-board
   boards.forEach((board, i) => {
-    if (!miniBoardWinners[i]) {
+    if (board && !miniBoardWinners[i]) {
       score += evaluateMiniBoard(board, botSymbol)
     }
   })
