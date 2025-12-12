@@ -25,6 +25,8 @@ function Game({ user, onLogout, gameId }) {
   const [rematchStatus, setRematchStatus] = useState(null) // null, 'requested', 'waiting'
   const [showDrawOptions, setShowDrawOptions] = useState(false)
   const botMoveInProgress = useRef(false)
+  const boardsSnapshot = useRef(null)
+  const activeBoardSnapshot = useRef(null)
 
   // Load multiplayer game if gameId is provided
   useEffect(() => {
@@ -148,6 +150,10 @@ function Game({ user, onLogout, gameId }) {
       return
     }
     
+    // IMMEDIATELY capture a snapshot of the game state before any async operations
+    boardsSnapshot.current = boards.map(board => [...board])
+    activeBoardSnapshot.current = activeBoard
+    
     botMoveInProgress.current = true
     let timeoutId
     
@@ -161,27 +167,27 @@ function Game({ user, onLogout, gameId }) {
       })
       
       try {
-        // Validate boards state
-        if (!boards || boards.length !== 9 || !boards.every(b => Array.isArray(b) && b.length === 9)) {
-          console.error('Bot: Invalid boards state')
+        // Use the SNAPSHOT, not current state
+        const boardsCopy = boardsSnapshot.current
+        const activeBoardCopy = activeBoardSnapshot.current
+        
+        // Validate snapshot
+        if (!boardsCopy || boardsCopy.length !== 9 || !boardsCopy.every(b => Array.isArray(b) && b.length === 9)) {
+          console.error('Bot: Invalid boards snapshot')
           setIsBotThinking(false)
           botMoveInProgress.current = false
+          boardsSnapshot.current = null
+          activeBoardSnapshot.current = null
           return
         }
         
-        // Create a DEEP COPY to prevent race conditions during calculation
-        const boardsCopy = boards.map(board => [...board])
-        
-        // Recalculate miniBoardWinners with the copied boards
+        // Recalculate miniBoardWinners with the snapshot
         const currentMiniBoardWinners = boardsCopy.map(board => {
           const result = calculateWinner(board)
           return result ? result.winner : null
         })
         
-        // Copy activeBoard value
-        const activeBoardCopy = activeBoard
-        
-        // Use copies for bot calculation to prevent race conditions
+        // Use snapshot for bot calculation - completely isolated from state changes
         let bestMove
         try {
           bestMove = findBestMove(boardsCopy, currentMiniBoardWinners, activeBoardCopy, 'O', 'medium')
@@ -189,6 +195,8 @@ function Game({ user, onLogout, gameId }) {
           console.error('Bot: AI calculation error', aiError)
           setIsBotThinking(false)
           botMoveInProgress.current = false
+          boardsSnapshot.current = null
+          activeBoardSnapshot.current = null
           return
         }
         
@@ -196,6 +204,8 @@ function Game({ user, onLogout, gameId }) {
           console.warn('Bot: No valid move found')
           setIsBotThinking(false)
           botMoveInProgress.current = false
+          boardsSnapshot.current = null
+          activeBoardSnapshot.current = null
           return
         }
         
@@ -206,19 +216,23 @@ function Game({ user, onLogout, gameId }) {
           console.error('Bot: Invalid move indices')
           setIsBotThinking(false)
           botMoveInProgress.current = false
+          boardsSnapshot.current = null
+          activeBoardSnapshot.current = null
           return
         }
         
-        // Verify square is empty on ORIGINAL boards (to catch any changes)
-        if (!boards[boardIndex] || boards[boardIndex][squareIndex]) {
-          console.warn('Bot: Square already occupied or board changed')
+        // Verify square is empty on SNAPSHOT (the state bot used for calculation)
+        if (!boardsCopy[boardIndex] || boardsCopy[boardIndex][squareIndex]) {
+          console.warn('Bot: Square already occupied in snapshot')
           setIsBotThinking(false)
           botMoveInProgress.current = false
+          boardsSnapshot.current = null
+          activeBoardSnapshot.current = null
           return
         }
         
-        // Create new boards state
-        const nextBoards = boards.map((board, i) => 
+        // Create new boards state from snapshot
+        const nextBoards = boardsCopy.map((board, i) => 
           i === boardIndex ? [...board] : [...board]
         )
         
