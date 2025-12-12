@@ -161,6 +161,14 @@ function Game({ user, onLogout, gameId }) {
       })
       
       try {
+        // Validate boards state
+        if (!boards || boards.length !== 9 || !boards.every(b => Array.isArray(b) && b.length === 9)) {
+          console.error('Bot: Invalid boards state')
+          setIsBotThinking(false)
+          botMoveInProgress.current = false
+          return
+        }
+        
         // Recalculate miniBoardWinners with current boards state
         const currentMiniBoardWinners = boards.map(board => {
           const result = calculateWinner(board)
@@ -177,6 +185,14 @@ function Game({ user, onLogout, gameId }) {
         }
         
         const { boardIndex, squareIndex } = bestMove
+        
+        // Validate move
+        if (boardIndex < 0 || boardIndex > 8 || squareIndex < 0 || squareIndex > 8) {
+          console.error('Bot: Invalid move indices')
+          setIsBotThinking(false)
+          botMoveInProgress.current = false
+          return
+        }
         
         // Verify square is empty
         if (boards[boardIndex][squareIndex]) {

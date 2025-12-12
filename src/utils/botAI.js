@@ -82,17 +82,32 @@ function getValidMoves(boards, miniBoardWinners, activeBoard) {
   if (activeBoard !== null) {
     // Can only play in active board
     const board = boards[activeBoard]
-    if (!miniBoardWinners[activeBoard]) {
+    
+    // Safety check: make sure board exists and is not won
+    if (board && !miniBoardWinners[activeBoard]) {
       board.forEach((square, index) => {
         if (square === null) {
           moves.push({ boardIndex: activeBoard, squareIndex: index })
         }
       })
     }
+    
+    // If active board is full/won but specified, allow any board
+    if (moves.length === 0) {
+      boards.forEach((board, boardIndex) => {
+        if (board && !miniBoardWinners[boardIndex]) {
+          board.forEach((square, squareIndex) => {
+            if (square === null) {
+              moves.push({ boardIndex, squareIndex })
+            }
+          })
+        }
+      })
+    }
   } else {
     // Can play in any available board
     boards.forEach((board, boardIndex) => {
-      if (!miniBoardWinners[boardIndex]) {
+      if (board && !miniBoardWinners[boardIndex]) {
         board.forEach((square, squareIndex) => {
           if (square === null) {
             moves.push({ boardIndex, squareIndex })
