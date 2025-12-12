@@ -151,7 +151,10 @@ function Game({ user, onLogout, gameId }) {
     }
     
     // IMMEDIATELY capture a snapshot of the game state before any async operations
-    boardsSnapshot.current = boards.map(board => [...board])
+    // CRITICAL: Validate each board to prevent undefined from entering the snapshot
+    boardsSnapshot.current = boards.map(board => 
+      Array.isArray(board) && board.length === 9 ? [...board] : Array(9).fill(null)
+    )
     activeBoardSnapshot.current = activeBoard
     
     botMoveInProgress.current = true
