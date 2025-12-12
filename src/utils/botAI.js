@@ -185,10 +185,9 @@ function simulateMove(boards, miniBoardWinners, move, symbol) {
       nextActiveBoard = null
     }
   }
-    nextActiveBoard = null
-  }
   
   return { newBoards, newMiniBoardWinners, nextActiveBoard }
+}
 
 /**
  * Minimax algorithm with alpha-beta pruning
