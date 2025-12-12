@@ -169,13 +169,28 @@ function Game({ user, onLogout, gameId }) {
           return
         }
         
-        // Recalculate miniBoardWinners with current boards state
-        const currentMiniBoardWinners = boards.map(board => {
+        // Create a DEEP COPY to prevent race conditions during calculation
+        const boardsCopy = boards.map(board => [...board])
+        
+        // Recalculate miniBoardWinners with the copied boards
+        const currentMiniBoardWinners = boardsCopy.map(board => {
           const result = calculateWinner(board)
           return result ? result.winner : null
         })
         
-        const bestMove = findBestMove(boards, currentMiniBoardWinners, activeBoard, 'O', 'medium')
+        // Copy activeBoard value
+        const activeBoardCopy = activeBoard
+        
+        // Use copies for bot calculation to prevent race conditions
+        let bestMove
+        try {
+          bestMove = findBestMove(boardsCopy, currentMiniBoardWinners, activeBoardCopy, 'O', 'medium')
+        } catch (aiError) {
+          console.error('Bot: AI calculation error', aiError)
+          setIsBotThinking(false)
+          botMoveInProgress.current = false
+          return
+        }
         
         if (!bestMove) {
           console.warn('Bot: No valid move found')
@@ -194,9 +209,9 @@ function Game({ user, onLogout, gameId }) {
           return
         }
         
-        // Verify square is empty
-        if (boards[boardIndex][squareIndex]) {
-          console.warn('Bot: Square already occupied')
+        // Verify square is empty on ORIGINAL boards (to catch any changes)
+        if (!boards[boardIndex] || boards[boardIndex][squareIndex]) {
+          console.warn('Bot: Square already occupied or board changed')
           setIsBotThinking(false)
           botMoveInProgress.current = false
           return

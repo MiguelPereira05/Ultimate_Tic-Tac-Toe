@@ -140,9 +140,28 @@ function getValidMoves(boards, miniBoardWinners, activeBoard) {
  * Simulate a move and return the new state
  */
 function simulateMove(boards, miniBoardWinners, move, symbol) {
-  const newBoards = boards.map((board, i) => 
-    i === move.boardIndex ? [...board] : [...board]
-  )
+  // Safety check: validate inputs
+  if (!boards || !Array.isArray(boards) || boards.length !== 9) {
+    throw new Error('simulateMove: Invalid boards')
+  }
+  if (!miniBoardWinners || !Array.isArray(miniBoardWinners) || miniBoardWinners.length !== 9) {
+    throw new Error('simulateMove: Invalid miniBoardWinners')
+  }
+  if (!move || move.boardIndex === undefined || move.squareIndex === undefined) {
+    throw new Error('simulateMove: Invalid move')
+  }
+  
+  const newBoards = boards.map((board, i) => {
+    if (!board || !Array.isArray(board)) {
+      return Array(9).fill(null) // Fallback to empty board
+    }
+    return i === move.boardIndex ? [...board] : [...board]
+  })
+  
+  // Verify the target board exists
+  if (!newBoards[move.boardIndex] || !Array.isArray(newBoards[move.boardIndex])) {
+    throw new Error(`simulateMove: Board ${move.boardIndex} is invalid`)
+  }
   
   newBoards[move.boardIndex][move.squareIndex] = symbol
   
@@ -154,10 +173,18 @@ function simulateMove(boards, miniBoardWinners, move, symbol) {
   
   // Determine next active board
   let nextActiveBoard = move.squareIndex
-  const nextBoardWon = newMiniBoardWinners[nextActiveBoard] !== null
-  const nextBoardFull = newBoards[nextActiveBoard].every(s => s !== null)
+  const nextBoard = newBoards[nextActiveBoard]
   
-  if (nextBoardWon || nextBoardFull) {
+  if (!nextBoard || !Array.isArray(nextBoard)) {
+    nextActiveBoard = null
+  } else {
+    const nextBoardWon = newMiniBoardWinners[nextActiveBoard] !== null
+    const nextBoardFull = nextBoard.every(s => s !== null)
+    
+    if (nextBoardWon || nextBoardFull) {
+      nextActiveBoard = null
+    }
+  }
     nextActiveBoard = null
   }
   
