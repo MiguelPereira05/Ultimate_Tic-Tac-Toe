@@ -4,7 +4,7 @@ import Board from './Board'
 import { calculateWinner } from '../utils/gameLogic'
 import { findBestMove } from '../utils/botAI'
 import { supabase } from '../lib/supabaseClient'
-import { makeMove, endGame, subscribeToGame } from '../lib/gameService'
+import { makeMove, endGame, subscribeToGame, requestRematch, respondToRematch } from '../lib/gameService'
 import './Game.css'
 
 function Game({ user, onLogout, gameId }) {
@@ -22,6 +22,8 @@ function Game({ user, onLogout, gameId }) {
   const [loading, setLoading] = useState(true)
   const [isBotThinking, setIsBotThinking] = useState(false)
   const [playWithBot, setPlayWithBot] = useState(true) // Enable bot for solo games
+  const [rematchStatus, setRematchStatus] = useState(null) // null, 'requested', 'waiting'
+  const [showDrawOptions, setShowDrawOptions] = useState(false)
 
   // Load multiplayer game if gameId is provided
   useEffect(() => {
@@ -41,6 +43,15 @@ function Game({ user, onLogout, gameId }) {
     const channel = subscribeToGame(gameId, (payload) => {
       console.log('Game update received:', payload)
       const updatedGame = payload.new
+      
+      // Handle rematch status
+      if (updatedGame.rematch_requested_by) {
+        if (updatedGame.rematch_requested_by === authUser.id) {
+          setRematchStatus('waiting')
+        } else {
+          setRematchStatus('requested')
+        }
+      }
       
       if (updatedGame.game_state) {
         setBoards(updatedGame.game_state.boards)
@@ -298,6 +309,41 @@ function Game({ user, onLogout, gameId }) {
     setActiveBoard(null)
   }
 
+  const handleRequestRematch = async () => {
+    if (!gameId) return
+    const result = await requestRematch(gameId)
+    if (result.success) {
+      setRematchStatus('waiting')
+    }
+  }
+
+  const handleAcceptRematch = async () => {
+    if (!gameId) return
+    const result = await respondToRematch(gameId, true)
+    if (result.success && result.newGameId) {
+      // Reload with new game
+      window.location.reload()
+    }
+  }
+
+  const handleDeclineRematch = async () => {
+    if (!gameId) return
+    await respondToRematch(gameId, false)
+    setRematchStatus(null)
+    await handleEndDraw()
+  }
+
+  const handleEndDraw = async () => {
+    if (!gameId) return
+    // End game as draw (no winner)
+    await endGame(gameId, null, true)
+    setShowDrawOptions(false)
+    // Redirect to profile after a moment
+    setTimeout(() => {
+      onLogout()
+    }, 2000)
+  }
+
   if (loading) {
     return (
       <div className="game">
@@ -322,6 +368,9 @@ function Game({ user, onLogout, gameId }) {
     }
   } else if (miniBoardWinners.every(winner => winner !== null)) {
     status = 'Draw!'
+    if (isMultiplayer && !showDrawOptions && rematchStatus === null) {
+      setShowDrawOptions(true)
+    }
   } else {
     if (isMultiplayer) {
       const isMyTurn = (mySymbol === 'X' && xIsNext) || (mySymbol === 'O' && !xIsNext)
@@ -378,6 +427,38 @@ function Game({ user, onLogout, gameId }) {
           mainWinner={mainWinner}
           activeBoard={activeBoard}
         />
+        
+        {/* Draw options for multiplayer */}
+        {isMultiplayer && showDrawOptions && miniBoardWinners.every(w => w !== null) && (
+          <div className="draw-options">
+            <h3>Game ended in a draw!</h3>
+            {rematchStatus === 'waiting' ? (
+              <p className="waiting-message">⏳ Waiting for opponent's response...</p>
+            ) : rematchStatus === 'requested' ? (
+              <div className="rematch-request">
+                <p>🎮 {opponentName} wants a rematch!</p>
+                <div className="draw-buttons">
+                  <button className="accept-rematch-btn" onClick={handleAcceptRematch}>
+                    ✓ Accept Rematch
+                  </button>
+                  <button className="decline-rematch-btn" onClick={handleDeclineRematch}>
+                    ✕ Decline
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="draw-buttons">
+                <button className="rematch-btn" onClick={handleRequestRematch}>
+                  🔄 Request Rematch
+                </button>
+                <button className="end-game-btn" onClick={handleEndDraw}>
+                  🏁 End Game
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        
         {!isMultiplayer && (
           <button className="reset-button" onClick={resetGame}>
             New Game

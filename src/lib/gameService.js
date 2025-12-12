@@ -244,14 +244,21 @@ export async function makeMove(gameId, boardIndex, squareIndex, newGameState, ne
  * @param {string} winnerId
  * @returns {Promise<{success: boolean, message: string}>}
  */
-export async function endGame(gameId, winnerId) {
+export async function endGame(gameId, winnerId, isDraw = false) {
   try {
+    const updateData = { 
+      status: 'completed',
+      winner_id: winnerId
+    }
+    
+    // If it's a draw, mark it explicitly
+    if (isDraw) {
+      updateData.is_draw = true
+    }
+    
     const { error } = await supabase
       .from('games')
-      .update({ 
-        status: 'completed',
-        winner_id: winnerId
-      })
+      .update(updateData)
       .eq('id', gameId)
 
     if (error) {
@@ -287,7 +294,9 @@ export async function getUserStats(userId) {
 
     const gamesPlayed = games.length
     const wins = games.filter(game => game.winner_id === userId).length
-    const losses = games.filter(game => game.winner_id && game.winner_id !== userId).length
+    // Only count as loss if there's a winner and it's not the user (exclude draws)
+    const losses = games.filter(game => game.winner_id && game.winner_id !== userId && !game.is_draw).length
+    const draws = games.filter(game => game.is_draw || (!game.winner_id && game.status === 'completed')).length
     const winRate = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0
 
     return {
@@ -296,6 +305,7 @@ export async function getUserStats(userId) {
         gamesPlayed,
         wins,
         losses,
+        draws,
         winRate
       }
     }
@@ -321,4 +331,114 @@ export function subscribeToGame(gameId, callback) {
       filter: `id=eq.${gameId}`
     }, callback)
     .subscribe()
+}
+
+/**
+ * Request a rematch after a game
+ * @param {string} gameId
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export async function requestRematch(gameId) {
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return { success: false, message: 'You must be logged in' }
+    }
+
+    const { error } = await supabase
+      .from('games')
+      .update({ 
+        rematch_requested_by: user.id
+      })
+      .eq('id', gameId)
+
+    if (error) {
+      console.error('Error requesting rematch:', error)
+      return { success: false, message: 'Failed to request rematch' }
+    }
+
+    return { success: true, message: 'Rematch requested' }
+  } catch (error) {
+    console.error('Error in requestRematch:', error)
+    return { success: false, message: 'An unexpected error occurred' }
+  }
+}
+
+/**
+ * Respond to a rematch request
+ * @param {string} gameId
+ * @param {boolean} accept
+ * @returns {Promise<{success: boolean, message: string, newGameId?: string}>}
+ */
+export async function respondToRematch(gameId, accept) {
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return { success: false, message: 'You must be logged in' }
+    }
+
+    if (!accept) {
+      // Decline rematch - just clear the request
+      const { error } = await supabase
+        .from('games')
+        .update({ rematch_requested_by: null })
+        .eq('id', gameId)
+
+      if (error) {
+        console.error('Error declining rematch:', error)
+        return { success: false, message: 'Failed to decline rematch' }
+      }
+
+      return { success: true, message: 'Rematch declined' }
+    }
+
+    // Accept rematch - get old game info and create new game
+    const { data: oldGame, error: fetchError } = await supabase
+      .from('games')
+      .select('*')
+      .eq('id', gameId)
+      .single()
+
+    if (fetchError || !oldGame) {
+      return { success: false, message: 'Failed to load game' }
+    }
+
+    // Create new game with same players
+    const initialState = {
+      boards: Array(9).fill(null).map(() => Array(9).fill(null)),
+      activeBoard: null,
+      miniBoardWinners: Array(9).fill(null)
+    }
+
+    const { data: newGame, error: createError } = await supabase
+      .from('games')
+      .insert([{
+        player_x_id: oldGame.player_x_id,
+        player_o_id: oldGame.player_o_id,
+        current_turn: 'X',
+        game_state: initialState,
+        status: 'active'
+      }])
+      .select()
+      .single()
+
+    if (createError || !newGame) {
+      console.error('Error creating rematch game:', createError)
+      return { success: false, message: 'Failed to create rematch' }
+    }
+
+    // Mark old game as completed if not already
+    await supabase
+      .from('games')
+      .update({ 
+        status: 'completed',
+        rematch_requested_by: null
+      })
+      .eq('id', gameId)
+
+    return { success: true, message: 'Rematch accepted!', newGameId: newGame.id }
+  } catch (error) {
+    console.error('Error in respondToRematch:', error)
+    return { success: false, message: 'An unexpected error occurred' }
+  }
 }

@@ -16,7 +16,7 @@ function Profile({ user, onStartGame, onLogout, onJoinGame }) {
   const [activeGames, setActiveGames] = useState([])
   const [showAddFriend, setShowAddFriend] = useState(false)
   const [actionLoading, setActionLoading] = useState(null)
-  const [stats, setStats] = useState({ gamesPlayed: 0, wins: 0, losses: 0, winRate: 0 })
+  const [stats, setStats] = useState({ gamesPlayed: 0, wins: 0, losses: 0, draws: 0, winRate: 0 })
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [newUsername, setNewUsername] = useState('')
   const [usernameError, setUsernameError] = useState('')
@@ -436,6 +436,10 @@ function Profile({ user, onStartGame, onLogout, onJoinGame }) {
             <div className="stat-card">
               <div className="stat-value">{stats.losses}</div>
               <div className="stat-label">Losses</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{stats.draws || 0}</div>
+              <div className="stat-label">Draws</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{stats.winRate}%</div>
