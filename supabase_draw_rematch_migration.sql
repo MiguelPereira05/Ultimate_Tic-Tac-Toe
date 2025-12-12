@@ -8,6 +8,10 @@ ADD COLUMN IF NOT EXISTS is_draw BOOLEAN DEFAULT FALSE;
 ALTER TABLE games 
 ADD COLUMN IF NOT EXISTS rematch_requested_by UUID REFERENCES auth.users(id);
 
+-- Add rematch_accepted_new_game_id to redirect both players to new game
+ALTER TABLE games 
+ADD COLUMN IF NOT EXISTS rematch_accepted_new_game_id UUID REFERENCES games(id);
+
 -- Add index for better query performance
 CREATE INDEX IF NOT EXISTS idx_games_rematch_requested 
 ON games(rematch_requested_by) 

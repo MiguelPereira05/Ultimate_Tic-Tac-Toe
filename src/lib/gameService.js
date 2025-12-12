@@ -427,12 +427,13 @@ export async function respondToRematch(gameId, accept) {
       return { success: false, message: 'Failed to create rematch' }
     }
 
-    // Mark old game as completed if not already
+    // Mark old game as completed and store new game ID for real-time redirect
     await supabase
       .from('games')
       .update({ 
         status: 'completed',
-        rematch_requested_by: null
+        rematch_requested_by: null,
+        rematch_accepted_new_game_id: newGame.id
       })
       .eq('id', gameId)
 

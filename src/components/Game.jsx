@@ -53,6 +53,13 @@ function Game({ user, onLogout, gameId }) {
         }
       }
       
+      // Check if game status changed to completed (rematch accepted creates new game)
+      if (updatedGame.status === 'completed' && updatedGame.rematch_accepted_new_game_id) {
+        // Redirect to new game
+        window.location.href = `/?gameId=${updatedGame.rematch_accepted_new_game_id}`
+        return
+      }
+      
       if (updatedGame.game_state) {
         setBoards(updatedGame.game_state.boards)
         setActiveBoard(updatedGame.game_state.activeBoard)
@@ -321,8 +328,8 @@ function Game({ user, onLogout, gameId }) {
     if (!gameId) return
     const result = await respondToRematch(gameId, true)
     if (result.success && result.newGameId) {
-      // Reload with new game
-      window.location.reload()
+      // Redirect to new game via URL parameter - will trigger for both players via real-time update
+      window.location.href = `/?gameId=${result.newGameId}`
     }
   }
 

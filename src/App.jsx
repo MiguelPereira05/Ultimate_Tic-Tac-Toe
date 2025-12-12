@@ -15,10 +15,12 @@ function App() {
   const [currentGameId, setCurrentGameId] = useState(null)
   const [confirmationMessage, setConfirmationMessage] = useState('')
 
-  // Handle email confirmation on page load
+  // Handle email confirmation and game ID from URL on page load
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const urlParams = new URLSearchParams(window.location.search)
     const type = hashParams.get('type')
+    const gameIdFromUrl = urlParams.get('gameId')
     
     if (type === 'signup') {
       setConfirmationMessage('Email confirmed! You can now log in.')
@@ -30,7 +32,15 @@ function App() {
         setConfirmationMessage('')
       }, 2000)
     }
-  }, [])
+    
+    // If there's a gameId in URL and user is authenticated, join that game
+    if (gameIdFromUrl && authUser) {
+      setCurrentGameId(gameIdFromUrl)
+      setCurrentView('game')
+      // Clear the URL parameter
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+  }, [authUser])
 
   // Check if user is authenticated
   useEffect(() => {
