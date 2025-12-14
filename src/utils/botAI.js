@@ -172,7 +172,9 @@ function simulateMove(boards, miniBoardWinners, move, symbol) {
   // DEBUG: Log created boards
   console.log('simulateMove created newBoards:', {
     input_boards: boards.map((b, i) => `${i}: ${Array.isArray(b) ? 'arr' : typeof b}`),
-    output_boards: newBoards.map((b, i) => `${i}: ${Array.isArray(b) ? 'arr' : typeof b}`)
+    output_boards: newBoards.map((b, i) => `${i}: ${Array.isArray(b) ? 'arr' : typeof b}`),
+    newMiniBoardWinners_types: newMiniBoardWinners.map((w, i) => `${i}: ${typeof w}`),
+    nextActiveBoard: nextActiveBoard
   })
   
   // Verify the target board exists
@@ -226,6 +228,8 @@ function minimax(boards, miniBoardWinners, activeBoard, depth, alpha, beta, isMa
   if (validMoves.length === 0) {
     return 0 // Draw
   }
+  
+  console.log(`📍 minimax depth=${depth}, isMaximizing=${isMaximizing}, validMoves=${validMoves.length}`)
   
   if (isMaximizing) {
     let maxEval = -Infinity
