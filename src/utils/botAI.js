@@ -94,11 +94,13 @@ function evaluateGameState(boards, miniBoardWinners, botSymbol) {
  */
 function getValidMoves(boards, miniBoardWinners, activeBoard) {
   // DEBUG: Log entry point
-  console.log('getValidMoves called with:', {
+  console.log('🎯 getValidMoves called with:', {
+    boards_is_array: Array.isArray(boards),
     boardsLength: boards?.length,
     boardsTypes: boards?.map((b, i) => `${i}: ${Array.isArray(b) ? 'array' : typeof b}`),
     activeBoard,
-    miniBoardWinners
+    miniBoardWinners_is_array: Array.isArray(miniBoardWinners),
+    miniBoardWinners_length: miniBoardWinners?.length
   })
   
   const moves = []
