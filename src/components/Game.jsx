@@ -290,6 +290,8 @@ function Game({ user, onLogout, gameId }) {
       return
     }
     
+    console.log('Player 1 played his move', { boardIndex, squareIndex })
+    
     // Solo game: prevent playing on bot's turn
     if (!isMultiplayer && playWithBot && !xIsNext) {
       return
