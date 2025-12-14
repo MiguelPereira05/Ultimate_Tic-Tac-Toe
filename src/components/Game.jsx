@@ -157,6 +157,13 @@ function Game({ user, onLogout, gameId }) {
     )
     activeBoardSnapshot.current = activeBoard
     
+    // DEBUG: Log snapshot capture
+    console.log('📸 Snapshot captured:', {
+      original_boards: boards.map((b, i) => `${i}: ${Array.isArray(b) ? `arr[${b.length}]` : typeof b}`),
+      snapshot_boards: boardsSnapshot.current.map((b, i) => `${i}: ${Array.isArray(b) ? `arr[${b.length}]` : typeof b}`),
+      activeBoard: activeBoardSnapshot.current
+    })
+    
     botMoveInProgress.current = true
     let timeoutId
     

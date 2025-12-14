@@ -93,6 +93,14 @@ function evaluateGameState(boards, miniBoardWinners, botSymbol) {
  * Get all valid moves for current state
  */
 function getValidMoves(boards, miniBoardWinners, activeBoard) {
+  // DEBUG: Log entry point
+  console.log('getValidMoves called with:', {
+    boardsLength: boards?.length,
+    boardsTypes: boards?.map((b, i) => `${i}: ${Array.isArray(b) ? 'array' : typeof b}`),
+    activeBoard,
+    miniBoardWinners
+  })
+  
   const moves = []
   
   if (activeBoard !== null) {
@@ -101,6 +109,13 @@ function getValidMoves(boards, miniBoardWinners, activeBoard) {
     
     // Safety check: make sure board exists and is not won
     if (board && !miniBoardWinners[activeBoard]) {
+      // DEBUG: Log before forEach
+      console.log(`About to forEach on board ${activeBoard}:`, {
+        isArray: Array.isArray(board),
+        length: board?.length,
+        board
+      })
+      
       board.forEach((square, index) => {
         if (square === null) {
           moves.push({ boardIndex: activeBoard, squareIndex: index })
@@ -111,6 +126,13 @@ function getValidMoves(boards, miniBoardWinners, activeBoard) {
     // If active board is full/won but specified, allow any board
     if (moves.length === 0) {
       boards.forEach((board, boardIndex) => {
+        // DEBUG: Log outer forEach
+        console.log(`Fallback forEach - board ${boardIndex}:`, {
+          isArray: Array.isArray(board),
+          type: typeof board,
+          value: board
+        })
+        
         if (board && !miniBoardWinners[boardIndex]) {
           board.forEach((square, squareIndex) => {
             if (square === null) {
@@ -123,6 +145,13 @@ function getValidMoves(boards, miniBoardWinners, activeBoard) {
   } else {
     // Can play in any available board
     boards.forEach((board, boardIndex) => {
+      // DEBUG: Log outer forEach
+      console.log(`Free play forEach - board ${boardIndex}:`, {
+        isArray: Array.isArray(board),
+        type: typeof board,
+        value: board
+      })
+      
       if (board && !miniBoardWinners[boardIndex]) {
         board.forEach((square, squareIndex) => {
           if (square === null) {
@@ -153,9 +182,16 @@ function simulateMove(boards, miniBoardWinners, move, symbol) {
   
   const newBoards = boards.map((board, i) => {
     if (!board || !Array.isArray(board)) {
+      console.warn(`⚠️ simulateMove: Board ${i} is invalid, replacing with empty board`, board)
       return Array(9).fill(null) // Fallback to empty board
     }
     return i === move.boardIndex ? [...board] : [...board]
+  })
+  
+  // DEBUG: Log created boards
+  console.log('simulateMove created newBoards:', {
+    input_boards: boards.map((b, i) => `${i}: ${Array.isArray(b) ? 'arr' : typeof b}`),
+    output_boards: newBoards.map((b, i) => `${i}: ${Array.isArray(b) ? 'arr' : typeof b}`)
   })
   
   // Verify the target board exists
