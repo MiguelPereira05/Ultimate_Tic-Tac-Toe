@@ -237,11 +237,11 @@ function minimax(boards, miniBoardWinners, activeBoard, depth, alpha, beta, isMa
       const { newBoards, newMiniBoardWinners, nextActiveBoard } = 
         simulateMove(boards, miniBoardWinners, move, botSymbol)
       
-      const eval_score = minimax(newBoards, newMiniBoardWinners, nextActiveBoard, 
+      const score = minimax(newBoards, newMiniBoardWinners, nextActiveBoard, 
         depth - 1, alpha, beta, false, botSymbol)
       
-      maxEval = Math.max(maxEval, eval_score)
-      alpha = Math.max(alpha, eval_score)
+      maxEval = Math.max(maxEval, score)
+      alpha = Math.max(alpha, score)
       if (beta <= alpha) break // Prune
     }
     return maxEval
@@ -251,11 +251,11 @@ function minimax(boards, miniBoardWinners, activeBoard, depth, alpha, beta, isMa
       const { newBoards, newMiniBoardWinners, nextActiveBoard } = 
         simulateMove(boards, miniBoardWinners, move, playerSymbol)
       
-      const eval_score = minimax(newBoards, newMiniBoardWinners, nextActiveBoard, 
+      const score = minimax(newBoards, newMiniBoardWinners, nextActiveBoard, 
         depth - 1, alpha, beta, true, botSymbol)
       
-      minEval = Math.min(minEval, eval_score)
-      beta = Math.min(beta, eval_score)
+      minEval = Math.min(minEval, score)
+      beta = Math.min(beta, score)
       if (beta <= alpha) break // Prune
     }
     return minEval
