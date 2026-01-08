@@ -171,9 +171,9 @@ function Game({ user, onLogout, gameId }) {
       // Set thinking state
       setIsBotThinking(true)
       
-      // Delay for UX
+      // Delay for UX (reduced from 600ms for faster gameplay)
       await new Promise(resolve => {
-        timeoutId = setTimeout(resolve, 600)
+        timeoutId = setTimeout(resolve, 300)
       })
       
       try {
@@ -495,6 +495,7 @@ function Game({ user, onLogout, gameId }) {
           winningBoards={winningBoards}
           mainWinner={mainWinner}
           activeBoard={activeBoard}
+          isBotThinking={isBotThinking && playWithBot}
         />
         
         {/* Draw options for multiplayer */}

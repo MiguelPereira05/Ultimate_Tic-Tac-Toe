@@ -143,8 +143,8 @@ function evaluateMove(
     return 0 // Draw
   }
 
-  // Limit depth for performance
-  if (depth >= 3) {
+  // Limit depth for performance - reduced to 2 for faster moves
+  if (depth >= 2) {
     return evaluatePosition(newBoards, botSymbol, playerSymbol)
   }
 

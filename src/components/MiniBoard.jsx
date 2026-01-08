@@ -2,7 +2,7 @@ import MiniSquare from './MiniSquare'
 import { calculateWinner } from '../utils/gameLogic'
 import './MiniBoard.css'
 
-function MiniBoard({ squares, onPlay, boardIndex, isWinningBoard, mainBoardWinner, isActive, isGameOver }) {
+function MiniBoard({ squares, onPlay, boardIndex, isWinningBoard, mainBoardWinner, isActive, isGameOver, isDisabled }) {
   const result = calculateWinner(squares)
   const winner = result ? result.winner : null
   const winningLine = result ? result.line : []
@@ -10,7 +10,7 @@ function MiniBoard({ squares, onPlay, boardIndex, isWinningBoard, mainBoardWinne
   const isBoardComplete = winner || squares.every(square => square !== null)
 
   function handleClick(squareIndex) {
-    if (squares[squareIndex] || winner || mainBoardWinner) {
+    if (isDisabled || squares[squareIndex] || winner || mainBoardWinner) {
       return
     }
     onPlay(boardIndex, squareIndex)
