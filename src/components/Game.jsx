@@ -200,7 +200,7 @@ function Game({ user, onLogout, gameId }) {
         // Use snapshot for bot calculation - completely isolated from state changes
         let bestMove
         try {
-          bestMove = findBestMove(boardsCopy, currentMiniBoardWinners, activeBoardCopy, 'O', 'medium')
+          bestMove = findBestMove(boardsCopy, activeBoardCopy, 'O')
         } catch (aiError) {
           console.error('Bot: AI calculation error', aiError)
           setIsBotThinking(false)
